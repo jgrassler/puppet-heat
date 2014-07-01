@@ -31,6 +31,16 @@ describe 'heat' do
     }
   end
 
+  let :log_params do
+    {
+      :logging_context_format_string => '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s',
+      :logging_default_format_string => '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s',
+      :logging_debug_format_suffix => '%(funcName)s %(pathname)s:%(lineno)d',
+      :logging_exception_prefix => '%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s',
+      :log_config_append => '/etc/heat/logging.conf'
+    }
+  end
+
   shared_examples_for 'heat' do
 
     context 'with rabbit_host parameter' do
@@ -59,6 +69,16 @@ describe 'heat' do
 
       it_configures 'a heat base installation'
       it_configures 'qpid as rpc backend'
+    end
+
+    context 'with extra logging options' do
+      it_configures 'a heat base installation'
+      it_configures 'logging params set'
+    end
+
+    context 'without extra logging options' do
+      it_configures 'a heat base installation'
+      it_configures 'logging params unset'
     end
 
     it_configures 'with syslog disabled'
@@ -374,6 +394,27 @@ describe 'heat' do
       should contain_heat_config('keystone_authtoken/auth_uri').with_value('http://1.2.3.4:35357/v2.0')
     end
   end
+
+  shared_examples_for 'logging params set' do
+    it 'configures all extra logging options' do
+      should contain_heat_config('DEFAULT/logging_context_format_string').with_value( params[:logging_context_format_string] )
+      should contain_heat_config('DEFAULT/logging_default_format_string').with_value( params[:logging_default_format_string] )
+      should contain_heat_config('DEFAULT/logging_debug_format_suffix').with_value( params[:logging_debug_format_suffix] )
+      should contain_heat_config('DEFAULT/logging_exception_prefix').with_value( params[:logging_exception_prefix] )
+      should contain_heat_config('DEFAULT/log_config_append').with_value( params[:log_config_append] )
+    end
+  end
+
+  shared_examples_for 'logging params unset' do
+    it 'configures no extra logging options' do
+      should contain_heat_config('DEFAULT/logging_context_format_string').with_ensure('absent')
+      should contain_heat_config('DEFAULT/logging_default_format_string').with_ensure('absent')
+      should contain_heat_config('DEFAULT/logging_debug_format_suffix').with_ensure('absent')
+      should contain_heat_config('DEFAULT/logging_exception_prefix').with_ensure('absent')
+      should contain_heat_config('DEFAULT/log_config_append').with_ensure('absent')
+    end
+  end
+
 
   context 'on Debian platforms' do
     let :facts do

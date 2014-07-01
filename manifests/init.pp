@@ -88,6 +88,27 @@
 #   (optional) Syslog facility to receive log lines
 #   Defaults to LOG_USER
 #
+# [*logging_context_format_string*]
+#   (optional) Format string to use for log messages with context.
+#   Defaults to undef.
+#
+# [*logging_default_format_string*]
+#   (optional) Format string to use for log messages without context.
+#   Defaults to undef.
+#
+# [*logging_debug_format_suffix*]
+#   (optional) Data to append to log format when level is DEBUG.
+#   Defaults to undef.
+#
+# [*logging_exception_prefix*]
+#   (optional) Prefix each line of exception output with this format.
+#   Defaults to undef.
+#
+# [*log_config_append*]
+#   (optional) The name of an additional logging configuration file. See
+#   <https://docs.python.org/2/howto/logging.html>.
+#   Defaults to undef.
+#
 # [*mysql_module*]
 #   (optional) The mysql puppet module version.
 #   Tested versions include 0.9 and 2.2
@@ -136,6 +157,11 @@ class heat(
   $database_idle_timeout       = 3600,
   $use_syslog                  = false,
   $log_facility                = 'LOG_USER',
+  $logging_context_format_string = undef,
+  $logging_default_format_string = undef,
+  $logging_debug_format_suffix = undef,
+  $logging_exception_prefix = undef,
+  $log_config_append           = undef,
   $mysql_module                = '0.9',
 ) {
 
@@ -350,4 +376,60 @@ class heat(
     }
   }
 
+  # Log format
+
+  if $logging_context_format_string {
+    heat_config {
+      'DEFAULT/logging_context_format_string' : value => $logging_context_format_string;
+      }
+    }
+    else {
+    heat_config {
+      'DEFAULT/logging_context_format_string' : ensure => absent;
+      }
+    }
+
+  if $logging_default_format_string {
+    heat_config {
+      'DEFAULT/logging_default_format_string' : value => $logging_default_format_string;
+      }
+    }
+    else {
+    heat_config {
+      'DEFAULT/logging_default_format_string' : ensure => absent;
+      }
+    }
+
+  if $logging_debug_format_suffix {
+    heat_config {
+      'DEFAULT/logging_debug_format_suffix' : value => $logging_debug_format_suffix;
+      }
+    }
+    else {
+    heat_config {
+      'DEFAULT/logging_debug_format_suffix' : ensure => absent;
+      }
+    }
+
+  if $logging_exception_prefix {
+    heat_config {
+      'DEFAULT/logging_exception_prefix' : value => $logging_exception_prefix;
+      }
+    }
+    else {
+    heat_config {
+      'DEFAULT/logging_exception_prefix' : ensure => absent;
+      }
+    }
+
+  if $log_config_append {
+    heat_config {
+      'DEFAULT/log_config_append' : value => $log_config_append;
+      }
+    }
+    else {
+    heat_config {
+      'DEFAULT/log_config_append' : ensure => absent;
+      }
+    }
 }
